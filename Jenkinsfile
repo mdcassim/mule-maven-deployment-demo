@@ -4,19 +4,6 @@ pipeline {
         label 'node1'
         }
     }
-    environment {
-       def mvn_version = 'M3'
-           def uploadSpec = """{
-           "files": [
-               {
-               "pattern": "target/*.zip",
-                   "target": "libs-snapshot-local/dk/redpill_linpro/mulesoft_integration_builds/"
-               }
-           ]
-    }"""
-        
-        
-    }
     stages {
         stage('Build') {
             steps { 
