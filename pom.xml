@@ -1,135 +1,33 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-<modelVersion>4.0.0</modelVersion>
-<groupId>com.ac</groupId>
-<artifactId>maven-test</artifactId>
-<version>1.0.0</version>
-<packaging>mule</packaging>
-<name>Mule maven-test Application</name>
-<properties>
-<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-<mule.version>3.8.4</mule.version>
-<mule.tools.version>1.2</mule.tools.version>
-</properties>
-<build>
-<plugins>
 <plugin>
-<groupId>org.mule.tools.maven</groupId>
-<artifactId>mule-app-maven-plugin</artifactId>
-<version>${mule.tools.version}</version>
-<extensions>true</extensions>
-<configuration>
-<copyToAppsDirectory>true</copyToAppsDirectory>
-</configuration>
-</plugin>
-<plugin>
-<groupId>org.codehaus.mojo</groupId>
-<artifactId>build-helper-maven-plugin</artifactId>
-<version>1.7</version>
-<executions>
-<execution>
-<id>add-resource</id>
-<phase>generate-resources</phase>
-<goals>
-<goal>add-resource</goal>
-</goals>
-<configuration>
-<resources>
-<resource>
-<directory>src/main/app/</directory>
-</resource>
-<resource>
-<directory>mappings/</directory>
-</resource>
-</resources>
-</configuration>
-</execution>
-</executions>
-</plugin>
-<!-- Read property file -->
-<plugin>
-<groupId>org.codehaus.mojo</groupId>
-<artifactId>properties-maven-plugin</artifactId>
-<version>1.0.0</version>
-<executions>
-<execution>
-<phase>initialize</phase>
-<goals>
-<goal>read-project-properties</goal>
-</goals>
-<configuration>
-<files>
-<file>src/main/resources/init.properties</file>
-</files>
-</configuration>
-</execution>
-</executions>
-</plugin>
-<!-- Deploy to Cloudhub -->
-<plugin>
-<groupId>org.mule.tools.maven</groupId>
-<artifactId>mule-maven-plugin</artifactId>
-<version>2.0</version>
-<configuration>
-<deploymentType>cloudhub</deploymentType>
-<muleVersion>3.8.4</muleVersion>
-<username>${anypoint.username}</username>
-<password>${anypoint.password}</password>
-<redeploy>true</redeploy>
-<environment>${anypoint.environment}</environment>
-<workerType>Micro</workerType>
-</configuration>
-<executions>
-<execution>
-<id>deploy</id>
-<phase>deploy</phase>
-<goals>
-<goal>deploy</goal>
-</goals>
-</execution>
-</executions>
-</plugin>
-<plugin>
-<groupId>org.apache.maven.plugins</groupId>
-<artifactId>maven-deploy-plugin</artifactId>
-<configuration>
-<skip>true</skip>
-</configuration>
-</plugin>
-</plugins>
-</build>
-<!-- Mule Dependencies -->
-<dependencies>
-</dependencies>
-<repositories>
-<repository>
-<id>Central</id>
-<name>Central</name>
-<url>http://repo1.maven.org/maven2/</url>
-<layout>default</layout>
-</repository>
-<repository>
-<id>mulesoft-releases</id>
-<name>MuleSoft Releases Repository</name>
-<url>http://repository.mulesoft.org/releases/</url>
-<layout>default</layout>
-</repository>
-</repositories>
-<pluginRepositories>
-<pluginRepository>
-<id>mulesoft-release</id>
-<name>mulesoft release repository</name>
-<layout>default</layout>
-<url>http://repository.mulesoft.org/releases/</url>
-<snapshots>
-<enabled>false</enabled>
-</snapshots>
-</pluginRepository>
-<pluginRepository>
-<id>mule-public</id>
-<url>https://repository.mulesoft.org/nexus/content/repositories/releases</url>
-</pluginRepository>
-</pluginRepositories>
-</project>
+                <groupId>org.mule.tools.maven</groupId>
+                <artifactId>mule-maven-plugin</artifactId>
+                <version>2.2.1</version>
+                <configuration>
+                    <deploymentType>arm</deploymentType>
+                    <username>${deploy.username}</username>
+                    <password>${deploy.password}</password> 
+                    <target>kubernetes</target>                      <!--group or server name to deploy to -->
+                    <targetType>serverGroup</targetType>             <!-- One of: server, serverGroup, cluster -->
+                    <applicationName>lbhealthcheck</applicationName>
+                    <environment>Dev</environment>
+                    <businessGroup>Redpill-Linpro Group</businessGroup>
+                    <url>https://anypoint.mulesoft.com</url>
+                    <redeploy>true</redeploy>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>deploy</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin> 
