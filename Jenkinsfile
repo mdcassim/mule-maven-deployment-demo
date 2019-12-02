@@ -20,11 +20,9 @@ pipeline {
     stages {
         stage('Build') {
             steps { 
-               {
+               
                     
                     sh 'mvn -s $MAVEN_SETTINGS clean package -DskipTests=true'
-                    
-                }
             }
         }
         stage('Deploy Test') {
