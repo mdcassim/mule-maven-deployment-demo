@@ -1,35 +1,54 @@
 pipeline {
-  agent {
+    agent {
      node { 
         label 'node1'
         }
     }
-  stages {
-    stage('Unit Test') {
-      steps {
-        sh 'mvn clean test'
-      }
+    environment {
+       def mvn_version = 'M3'
+           def uploadSpec = """{
+           "files": [
+               {
+               "pattern": "target/*.zip",
+                   "target": "libs-snapshot-local/dk/redpill_linpro/mulesoft_integration_builds/"
+               }
+           ]
+    }"""
+        
+        
     }
-    stage('Deploy Standalone') {
-      steps {
-        sh 'mvn deploy -P standalone'
-      }
-    }
-    stage('Deploy ARM') {
-      environment {
-        ANYPOINT_CREDENTIALS = credentials('anypoint.credentials')
-      }
-      steps {
-        sh 'mvn deploy -P arm -Darm.target.name=local-3.9.0-ee -Danypoint.username=${ANYPOINT_CREDENTIALS_USR} -Danypoint.password=${ANYPOINT_CREDENTIALS_PSW}'
-      }
-    }
-    stage('Deploy CloudHub') {
-      environment {
-        ANYPOINT_CREDENTIALS = credentials('anypoint.credentials')
-      }
-      steps {
-        sh 'mvn deploy -P cloudhub -Dmule.version=3.9.0 -Danypoint.username=${ANYPOINT_CREDENTIALS_USR} -Danypoint.password=${ANYPOINT_CREDENTIALS_PSW}'
-      }
-    }
-  }
+    stages {
+        stage('Build') {
+            steps { 
+               {
+                    
+                    sh 'mvn -s $MAVEN_SETTINGS clean package -DskipTests=true'
+                    
+                }
+            }
+        }
+        stage('Deploy Test') {
+            steps { 
+                configFileProvider(
+                    [configFile(fileId: 'mulesoft-maven-settings', variable: 'MAVEN_SETTINGS')]) {
+                    withEnv( ["PATH+MAVEN=${tool mvn_version}/bin"] ) {
+                               withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'mule-builder', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                      sh 'mvn -s $MAVEN_SETTINGS -Ddeploy.username=$USERNAME -Ddeploy.password=$PASSWORD deploy -DskipTests=true'
+                      }
+                    }
+                }
+            }
+        }
+        stage('Upload Artifact') {
+            steps {
+                withEnv( ["PATH+MAVEN=${tool mvn_version}/bin"] ) {
+                                 script {
+                                        def server = Artifactory.newServer url: 'http://<artifactory url>:8081/artifactory', credentialsId: 'mulesoft-artifactory'
+                                        server.bypassProxy = true
+                                        def buildInfo = server.upload spec: uploadSpec
+                                        }
+                    }
+                }
+            }
+        }
 }
